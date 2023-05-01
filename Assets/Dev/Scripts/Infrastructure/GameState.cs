@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Dev.PlayerLogic;
 using Dev.ScoreLogic;
@@ -99,11 +100,11 @@ namespace Dev.Infrastructure
 
             string body = "Starting in";
 
-            _uiService.Curtain.ShowCountdown(body, time);
-
+            _uiService.Curtain.ShowCountdownText(body, time);
+            
             this.DelayedCallback(time, (() => { OnGameStarted(); }));
         }
-
+        
         private void OnGameStarted()
         {
             SetPlayersInputState(true);
@@ -122,7 +123,7 @@ namespace Dev.Infrastructure
 
             string body = "Restarting game in";
 
-            _uiService.Curtain.ShowCountdown(body, timeToFullRestart);
+            _uiService.Curtain.ShowCountdownText(body, timeToFullRestart);
 
             _players.ForEach(x => x.Rigidbody.velocity = Vector3.zero);
 
@@ -136,9 +137,10 @@ namespace Dev.Infrastructure
                 {
                     _playerSpawnService.PlacePlayerOnRandomPoint(player);
 
-                    _scoreController.ResetScore(player.netIdentity);
+                    _scoreController.ResetPlayerScore(player.netIdentity);
                 }
 
+                _scoreController.CleanUp();
 
                 StartGame();
             }

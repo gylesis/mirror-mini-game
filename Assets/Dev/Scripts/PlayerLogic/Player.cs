@@ -41,5 +41,13 @@ namespace Dev.PlayerLogic
         {
             _hitBoxCollider.enabled = isOn;
         }
+
+        [ClientRpc]
+        public void SetPos(Vector3 pos)
+        {
+            transform.position = pos;
+        }
+        
+        
     }
 }

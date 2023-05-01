@@ -21,6 +21,8 @@ namespace Dev.ScoreLogic
         public event Action<NetworkIdentity> ScoreRecordRemoved;
         public event Action<ScoreData> MaxScoreReached;
 
+        [SyncVar] private bool _hasMaxScoreReached;
+        
         public void Init(PlayerSpawnService playerSpawnService, GameSettings gameSettings)
         {
             _gameSettings = gameSettings;
@@ -109,14 +111,24 @@ namespace Dev.ScoreLogic
 
             if (isWinner)
             {
+                if(_hasMaxScoreReached) return;
+                
+                _hasMaxScoreReached = true;
+                
                 MaxScoreReached?.Invoke(scoreData);
             }
         }
 
         [Server]
-        public void ResetScore(NetworkIdentity networkIdentity)
+        public void ResetPlayerScore(NetworkIdentity networkIdentity)
         {
             SetScore(networkIdentity, 0);
+        }
+
+        [Server]
+        public void CleanUp()
+        {
+            _hasMaxScoreReached = false;
         }
 
         private bool TryGetScoreData(NetworkIdentity networkIdentity, out ScoreData scoreData)

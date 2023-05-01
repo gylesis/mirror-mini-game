@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Mirror;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,14 @@ namespace Dev.UI
     {
         [SerializeField] private TMP_Text _genericText;
         [SerializeField] private TMP_Text _countdownText;
+        
+        private WaitForSeconds _waitForSeconds = new WaitForSeconds(1);
+
+        [Server]
+        public void ShowCountdownText(string body, int seconds)
+        {
+            StartCoroutine(Countdown(body, seconds));
+        }
 
         [ClientRpc]
         public void ShowGenericText(bool isOn, string str)
@@ -21,37 +30,31 @@ namespace Dev.UI
             _genericText.enabled = isOn;
         }
 
-        [Server]
-        public void ShowCountdown(string body, int seconds)
-        {
-            RpcSetTextCountdown(body, seconds);
-        }
-
-        [ClientRpc]
-        private void RpcSetTextCountdown(string body, int seconds)
-        {
-            StartCoroutine(Countdown(body, seconds));
-        }
-
         private IEnumerator Countdown(string body, int seconds)
         {
-            _countdownText.enabled = true;
-
             for (int i = 0; i < seconds; i++)
             {
                 int currentSecond = seconds - i;
 
-                SetText($"{body} {currentSecond}...");
+                var str = $"{body} {currentSecond}";
 
-                yield return new WaitForSeconds(1);
+                ShowCountDownText(str, true);
+
+                yield return _waitForSeconds;
             }
 
-            _countdownText.enabled = false;
+            ShowCountDownText(String.Empty, false);
         }
 
-        private void SetText(string str)
+        [ClientRpc]
+        private void ShowCountDownText(string text, bool isOn)
         {
-            _countdownText.text = str;
+            if (isOn)
+            {
+                _countdownText.text = text;
+            }
+            
+            _countdownText.enabled = isOn;
         }
     }
 }

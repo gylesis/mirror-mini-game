@@ -53,7 +53,7 @@ namespace Dev.PlayerLogic
         [ClientRpc]
         private void RpcSetIgnoreCollision(NetworkIdentity me, bool ignore)
         {
-            var players = FindObjectsOfType<Player>();
+            var players = _playerSpawnService.Players;
 
             var otherPlayers = players.Where(x => x.netId != me.netId).ToList();
 
@@ -181,7 +181,7 @@ namespace Dev.PlayerLogic
                 SetIgnoreCollision(context.NetworkIdentity, false);
                 _owners.Remove(context);
             }
-
+            
             _dashesTimers.Remove(context.NetworkIdentity.netId);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ namespace Dev.ScoreLogic
 
         private void OnScoreRecordAdded(ScoreData scoreData)
         {
+            if(_scoreDatas.Any(x => x.NetworkIdentity == scoreData.NetworkIdentity)) return;
+            
             _scoreDatas.Add(scoreData);
 
             ScoreUI scoreUI = Instantiate(_scoreUIPrefab, _parent);
@@ -38,13 +41,17 @@ namespace Dev.ScoreLogic
 
         private void OnScoreRecordRemoved(NetworkIdentity networkIdentity)
         {
-            _scoreDatas.RemoveAt(_scoreDatas.FindIndex(x => x.NetworkIdentity.netId == networkIdentity.netId));
+            var hasScore = _scoreDatas.Any(x => x.NetworkIdentity == networkIdentity);
 
-            ScoreUI scoreUi = _scoreUis[networkIdentity];
-
-            Destroy(scoreUi.gameObject);
-
-            _scoreUis.Remove(networkIdentity);
+            if (hasScore)
+            {
+                _scoreDatas.RemoveAt(_scoreDatas.FindIndex(x => x.NetworkIdentity.netId == networkIdentity.netId));
+                ScoreUI scoreUi = _scoreUis[networkIdentity];
+                
+                Destroy(scoreUi.gameObject);
+                
+                _scoreUis.Remove(networkIdentity);
+            }
         }
 
         private void OnScoreUpdated(ScoreData scoreData)

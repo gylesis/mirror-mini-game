@@ -26,6 +26,9 @@ namespace Dev.PlayerLogic
 
         private Dictionary<Player, List<GameObject>> _playerAuthorities = new Dictionary<Player, List<GameObject>>();
 
+
+        public List<Player> Players => _players.ToList();
+
         public event Action<Player> PlayerAdded;
         public event Action<Player> PlayerRemoved;
 
@@ -151,7 +154,7 @@ namespace Dev.PlayerLogic
             Vector3 pos = spawnPoint.transform.position;
             pos.y = 2;
 
-            player.transform.position = pos;
+            player.SetPos(pos);
         }
 
         public void FreeSpawnPoints()
@@ -180,6 +183,8 @@ namespace Dev.PlayerLogic
                     Destroy(gameObj);
                 }
 
+                _playerDashCollisionsTrackService.Remove(player.netId);
+                
                 _playersAlive.Remove(conn);
                 _players.Remove(player);
                 _playerAuthorities.Remove(player);
